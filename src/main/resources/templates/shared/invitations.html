@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: page('Pending Invitations', ~{::section})}">
+
+<body>
+	<section class="row justify-content-center">
+		<div class="col-lg-8">
+			<div class="d-flex justify-content-between align-items-center mb-4">
+				<div>
+					<h1 class="h3 fw-bold mb-1">Capsule Invitations</h1>
+					<p class="text-muted small mb-0">Respond to shared capsules you have been invited to join.</p>
+				</div>
+				<a th:href="@{/dashboard}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+			</div>
+
+			<div th:if="${#lists.isEmpty(invitations)}" class="card border-0 shadow-sm">
+				<div class="card-body p-5 text-center">
+					<i class="bi bi-envelope-check fs-1 text-muted"></i>
+					<p class="text-muted mt-3 mb-0">You have no pending shared capsule invitations right now.</p>
+				</div>
+			</div>
+
+			<div class="vstack gap-3" th:if="${!#lists.isEmpty(invitations)}">
+				<div class="card border-0 shadow-sm" th:each="inv : ${invitations}">
+					<div
+						class="card-body p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+						<div>
+							<span class="badge text-bg-light border mb-2"
+								th:text="${inv.capsuleTheme}">CELEBRATION</span>
+							<h2 class="h5 fw-bold mb-1" th:text="${inv.capsuleTitle}">Capsule Title</h2>
+							<p class="small text-muted mb-1">
+								Invited by <strong th:text="${inv.inviterName}">Owner</strong>
+							</p>
+							<p class="small text-muted mb-0">
+								<i class="bi bi-clock me-1"></i> Scheduled Unlock: <span
+									th:text="${inv.unlockAtFormatted}">date</span>
+								&middot; Expires: <span th:text="${inv.expiresAtFormatted}">date</span>
+							</p>
+						</div>
+						<div class="d-flex gap-2">
+							<form th:action="@{/invitations/{id}/accept(id=${inv.invitationId})}" method="post">
+								<button type="submit" class="btn btn-success btn-sm">
+									<i class="bi bi-check-lg me-1"></i> Accept
+								</button>
+							</form>
+							<form th:action="@{/invitations/{id}/decline(id=${inv.invitationId})}" method="post">
+								<button type="submit" class="btn btn-outline-danger btn-sm">Decline</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+
+</html>

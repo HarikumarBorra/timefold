@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: page('Create Account', ~{::section})}">
+
+<body>
+	<section class="row justify-content-center">
+		<div class="col-md-6 col-lg-5">
+			<div class="card border-0 shadow-sm">
+				<div class="card-body p-4">
+					<h2 class="h4 fw-bold mb-1">Create your TimeFold account</h2>
+					<p class="text-muted small mb-4">Start preserving messages for tomorrow.</p>
+
+					<form th:action="@{/auth/register}" th:object="${registerRequest}" method="post" novalidate>
+						<input type="hidden" th:field="*{timezone}" id="detectedTimezone">
+
+						<div class="mb-3">
+							<label for="fullName" class="form-label">Full Name</label>
+							<input type="text" id="fullName" th:field="*{fullName}" class="form-control"
+								th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'" placeholder="Jane Doe"
+								required>
+							<div class="invalid-feedback" th:errors="*{fullName}"></div>
+						</div>
+
+						<div class="mb-3">
+							<label for="email" class="form-label">Email Address</label>
+							<input type="email" id="email" th:field="*{email}" class="form-control"
+								th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+								placeholder="you@example.com" required>
+							<div class="invalid-feedback" th:errors="*{email}"></div>
+						</div>
+
+						<div class="mb-3">
+							<label for="password" class="form-label">Password</label>
+							<input type="password" id="password" th:field="*{password}" class="form-control"
+								th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
+								placeholder="At least 8 characters" required>
+							<div class="invalid-feedback" th:errors="*{password}"></div>
+						</div>
+
+						<div class="mb-4">
+							<label for="confirmPassword" class="form-label">Confirm Password</label>
+							<input type="password" id="confirmPassword" th:field="*{confirmPassword}"
+								class="form-control"
+								th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid'" required>
+							<div class="invalid-feedback" th:errors="*{confirmPassword}"></div>
+						</div>
+
+						<button type="submit" class="btn btn-primary w-100">Create Account</button>
+					</form>
+
+					<hr class="my-4">
+					<p class="text-center small text-muted mb-0">
+						Already have an account?
+						<a th:href="@{/auth/login}" class="text-decoration-none fw-semibold">Log in</a>
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			try {
+				const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+				if (tz) document.getElementById('detectedTimezone').value = tz;
+			} catch (e) { }
+		</script>
+	</section>
+</body>
+
+</html>

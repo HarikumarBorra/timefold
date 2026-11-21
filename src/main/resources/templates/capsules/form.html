@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: page(${isEdit} ? 'Edit Draft Capsule' : 'New Personal Capsule', ~{::section})}">
+
+<body>
+	<section class="row justify-content-center">
+		<div class="col-lg-8">
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h1 class="h3 fw-bold mb-0" th:text="${isEdit} ? 'Edit Draft Capsule' : 'Create a Personal Capsule'">New
+					Capsule</h1>
+				<a th:href="@{/capsules}" class="btn btn-outline-secondary btn-sm">Cancel</a>
+			</div>
+
+			<div class="card border-0 shadow-sm">
+				<div class="card-body p-4">
+					<form th:action="${isEdit} ? @{/capsules/{id}/edit(id=${publicId})} : @{/capsules}"
+						th:object="${capsuleForm}" method="post" novalidate>
+
+						<div class="mb-3">
+							<label for="title" class="form-label fw-semibold">Capsule Title</label>
+							<input type="text" id="title" th:field="*{title}" class="form-control"
+								th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'"
+								placeholder="e.g., Letter to my 2030 self" required>
+							<div class="invalid-feedback" th:errors="*{title}"></div>
+						</div>
+
+						<div class="row g-3 mb-3">
+							<div class="col-md-8">
+								<label for="description" class="form-label">Short Description <span
+										class="text-muted small">(optional)</span></label>
+								<input type="text" id="description" th:field="*{description}" class="form-control"
+									th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+									placeholder="Visible as a hint before unlock — avoid private spoilers!">
+								<div class="invalid-feedback" th:errors="*{description}"></div>
+							</div>
+							<div class="col-md-4">
+								<label for="theme" class="form-label">Theme</label>
+								<select id="theme" th:field="*{theme}" class="form-select">
+									<option th:each="t : ${themes}" th:value="${t}" th:text="${t}"></option>
+								</select>
+							</div>
+						</div>
+
+						<div class="row g-3 mb-3">
+							<div class="col-md-6">
+								<label for="unlockLocalDateTime" class="form-label fw-semibold">Unlock Date &amp;
+									Time</label>
+								<input type="datetime-local" id="unlockLocalDateTime" th:field="*{unlockLocalDateTime}"
+									class="form-control"
+									th:classappend="${#fields.hasErrors('unlockLocalDateTime')} ? 'is-invalid'"
+									required>
+								<div class="invalid-feedback" th:errors="*{unlockLocalDateTime}"></div>
+								<div class="form-text">Stored safely in UTC; displayed in your chosen timezone.</div>
+							</div>
+							<div class="col-md-6">
+								<label for="timezone" class="form-label fw-semibold">Timezone</label>
+								<select id="timezone" th:field="*{timezone}" class="form-select">
+									<option th:each="tz : ${timezones}" th:value="${tz}" th:text="${tz}"></option>
+								</select>
+							</div>
+						</div>
+
+						<div class="mb-4">
+							<label for="messageContent" class="form-label fw-semibold">Your Message</label>
+							<textarea id="messageContent" th:field="*{messageContent}" rows="8" class="form-control"
+								th:classappend="${#fields.hasErrors('messageContent')} ? 'is-invalid'"
+								placeholder="Write everything you want your future self to remember..."
+								required></textarea>
+							<div class="invalid-feedback" th:errors="*{messageContent}"></div>
+							<div class="form-text">
+								<i class="bi bi-shield-lock me-1"></i> Encrypted at rest using AES-256-GCM. You can
+								still edit while in DRAFT status.
+							</div>
+						</div>
+
+						<div class="d-flex justify-content-end gap-2">
+							<a th:href="@{/capsules}" class="btn btn-outline-secondary">Cancel</a>
+							<button type="submit" class="btn btn-primary">
+								<i class="bi bi-save me-1"></i>
+								<span th:text="${isEdit} ? 'Save Draft Changes' : 'Save as Draft'">Save as Draft</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+
+</html>

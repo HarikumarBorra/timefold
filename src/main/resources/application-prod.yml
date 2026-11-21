@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  thymeleaf:
+    cache: true
+
+  jpa:
+    show-sql: false
+
+server:
+  forward-headers-strategy: native
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+logging:
+  level:
+    com.timefold: INFO
+    org.springframework.security: WARN

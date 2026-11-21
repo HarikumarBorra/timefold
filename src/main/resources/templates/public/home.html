@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: page('A message today. A memory tomorrow.', ~{::section})}">
+
+<body>
+	<section>
+		<div class="tf-hero p-4 p-md-5 mb-4 shadow-sm">
+			<div class="col-lg-8">
+				<span class="badge bg-warning text-dark mb-3">Digital Time Capsules</span>
+				<h1 class="display-5 fw-bold mb-3">A message today. A memory tomorrow.</h1>
+				<p class="lead mb-4 opacity-75">
+					Seal personal letters to your future self, build shared group capsules with friends and family,
+					and schedule birthday or anniversary surprises that unlock at the exact moment you choose.
+				</p>
+				<div class="d-flex flex-wrap gap-2">
+					<a class="btn btn-light btn-lg fw-semibold text-primary" th:href="@{/auth/register}">
+						<i class="bi bi-envelope-heart me-1"></i> Create Your First Capsule
+					</a>
+					<a class="btn btn-outline-light btn-lg" th:href="@{/auth/login}">Sign In</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="row g-4">
+			<div class="col-md-4">
+				<div class="card h-100 border-0 shadow-sm tf-card-hover">
+					<div class="card-body">
+						<i class="bi bi-lock-fill fs-3 text-primary"></i>
+						<h5 class="card-title mt-3">Personal &amp; Sealed</h5>
+						<p class="card-text text-muted small">
+							Write a message, choose a future unlock date in your local timezone, and seal it securely
+							until it is ready.
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card h-100 border-0 shadow-sm tf-card-hover">
+					<div class="card-body">
+						<i class="bi bi-people-fill fs-3 text-primary"></i>
+						<h5 class="card-title mt-3">Shared Group Memories</h5>
+						<p class="card-text text-muted small">
+							Invite friends or family to contribute messages with owner-controlled visibility rules after
+							unlock.
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card h-100 border-0 shadow-sm tf-card-hover">
+					<div class="card-body">
+						<i class="bi bi-calendar-heart-fill fs-3 text-primary"></i>
+						<h5 class="card-title mt-3">Birthdays &amp; Anniversaries</h5>
+						<p class="card-text text-muted small">
+							Celebrate recurring milestones with automatic annual capsules or timely reminders via Email
+							and WhatsApp.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+
+</html>

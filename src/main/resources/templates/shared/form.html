@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: page('Create Shared Capsule', ~{::section})}">
+
+<body>
+	<section class="row justify-content-center">
+		<div class="col-lg-8">
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<div>
+					<h1 class="h3 fw-bold mb-1">Create a Shared Group Capsule</h1>
+					<p class="text-muted small mb-0">Invite friends or family to contribute messages and unlock them
+						together.</p>
+				</div>
+				<a th:href="@{/capsules}" class="btn btn-outline-secondary btn-sm">Cancel</a>
+			</div>
+
+			<div class="card border-0 shadow-sm">
+				<div class="card-body p-4">
+					<form th:action="@{/shared}" th:object="${sharedForm}" method="post" novalidate>
+						<div class="mb-3">
+							<label for="title" class="form-label fw-semibold">Capsule Title</label>
+							<input type="text" id="title" th:field="*{title}" class="form-control"
+								th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'"
+								placeholder="e.g., College Friends Reunion 2030" required>
+							<div class="invalid-feedback" th:errors="*{title}"></div>
+						</div>
+
+						<div class="row g-3 mb-3">
+							<div class="col-md-8">
+								<label for="description" class="form-label">Description / Prompt for
+									Contributors</label>
+								<input type="text" id="description" th:field="*{description}" class="form-control"
+									th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+									placeholder="Share your favorite memory or prediction for the future">
+								<div class="invalid-feedback" th:errors="*{description}"></div>
+							</div>
+							<div class="col-md-4">
+								<label for="theme" class="form-label">Theme</label>
+								<select id="theme" th:field="*{theme}" class="form-select">
+									<option th:each="t : ${themes}" th:value="${t}" th:text="${t}"></option>
+								</select>
+							</div>
+						</div>
+
+						<div class="mb-3">
+							<label for="visibilityPolicy" class="form-label fw-semibold">Contribution Visibility After
+								Unlock</label>
+							<select id="visibilityPolicy" th:field="*{visibilityPolicy}" class="form-select">
+								<option value="ALL_MEMBERS">ALL_MEMBERS — All joined members can read every contribution
+								</option>
+								<option value="SELF_ONLY">SELF_ONLY — Contributors see only their own message (Owner
+									sees all)</option>
+								<option value="OWNER_DEFINED">OWNER_DEFINED — Owner chooses per-contribution viewers
+									before sealing</option>
+							</select>
+							<div class="form-text">You can adjust this policy anytime before sealing the capsule.</div>
+						</div>
+
+						<div class="row g-3 mb-3">
+							<div class="col-md-6">
+								<label for="unlockLocalDateTime" class="form-label fw-semibold">Unlock Date &amp;
+									Time</label>
+								<input type="datetime-local" id="unlockLocalDateTime" th:field="*{unlockLocalDateTime}"
+									class="form-control"
+									th:classappend="${#fields.hasErrors('unlockLocalDateTime')} ? 'is-invalid'"
+									required>
+								<div class="invalid-feedback" th:errors="*{unlockLocalDateTime}"></div>
+							</div>
+							<div class="col-md-6">
+								<label for="timezone" class="form-label fw-semibold">Timezone</label>
+								<select id="timezone" th:field="*{timezone}" class="form-select">
+									<option th:each="tz : ${timezones}" th:value="${tz}" th:text="${tz}"></option>
+								</select>
+							</div>
+						</div>
+
+						<div class="mb-4">
+							<label for="initialMessage" class="form-label fw-semibold">
+								Your Opening Contribution <span class="text-muted fw-normal small">(optional — you can
+									add later)</span>
+							</label>
+							<textarea id="initialMessage" th:field="*{initialMessage}" rows="5" class="form-control"
+								placeholder="Write your own message to kick off the shared capsule..."></textarea>
+						</div>
+
+						<div class="d-flex justify-content-end gap-2">
+							<a th:href="@{/capsules}" class="btn btn-outline-secondary">Cancel</a>
+							<button type="submit" class="btn btn-primary">
+								<i class="bi bi-people-fill me-1"></i> Create Shared Capsule
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+
+</html>

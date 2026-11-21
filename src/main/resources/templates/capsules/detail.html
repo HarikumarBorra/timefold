@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: page(${capsule.title}, ~{::section})}">
+
+<body>
+	<section class="row justify-content-center">
+		<div class="col-lg-10">
+			<div class="mb-3">
+				<a th:href="@{/capsules}" class="text-decoration-none small text-muted">
+					<i class="bi bi-arrow-left me-1"></i> Back to My Capsules
+				</a>
+			</div>
+
+			<!-- Header Card -->
+			<div class="card border-0 shadow-sm mb-4">
+				<div class="card-body p-4">
+					<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+						<div class="d-flex flex-wrap align-items-center gap-2">
+							<span class="badge" th:text="${capsule.status}"
+								th:classappend="${capsule.status.name() == 'READY'} ? 'text-bg-success' :
+                                              (${capsule.status.name() == 'SEALED'} ? 'text-bg-primary' :
+                                              (${capsule.status.name() == 'DRAFT'} ? 'text-bg-warning' :
+                                              (${capsule.status.name() == 'OPENED'} ? 'text-bg-secondary' : 'text-bg-danger')))">
+								STATUS
+							</span>
+							<span class="badge text-bg-info" th:if="${capsule.isShared}">
+								<i class="bi bi-people-fill me-1"></i>SHARED
+							</span>
+							<span class="badge text-bg-light border" th:if="${!capsule.isShared}">PERSONAL</span>
+							<span class="badge text-bg-light border" th:text="${capsule.theme}">CLASSIC</span>
+							<span class="badge text-bg-dark" th:if="${capsule.isShared}"
+								th:text="'Visibility: ' + ${capsule.visibilityPolicy}">Visibility</span>
+						</div>
+						<span class="small text-muted">
+							Created <span th:text="${capsule.createdAtFormatted}">date</span>
+						</span>
+					</div>
+
+					<h1 class="h3 fw-bold mb-2" th:text="${capsule.title}">Capsule Title</h1>
+					<p th:if="${capsule.description}" class="text-muted mb-3" th:text="${capsule.description}"></p>
+
+					<div class="row g-2 small text-muted border-top pt-3 mt-3">
+						<div class="col-sm-6">
+							<i class="bi bi-calendar-check me-1 text-primary"></i>
+							<strong>Scheduled Unlock:</strong>
+							<span th:text="${capsule.unlockAtFormatted}">Date</span>
+						</div>
+						<div class="col-sm-6" th:if="${capsule.isShared}">
+							<i class="bi bi-chat-left-heart me-1 text-primary"></i>
+							<strong>Submitted Contributions:</strong>
+							<span th:text="${capsule.totalSubmittedContributions}">0</span>
+						</div>
+						<div class="col-sm-6" th:if="${capsule.sealedAtFormatted}">
+							<i class="bi bi-lock me-1 text-primary"></i>
+							<strong>Sealed:</strong>
+							<span th:text="${capsule.sealedAtFormatted}">Date</span>
+						</div>
+						<div class="col-sm-6" th:if="${capsule.unlockedAtFormatted}">
+							<i class="bi bi-unlock me-1 text-success"></i>
+							<strong>Unlocked:</strong>
+							<span th:text="${capsule.unlockedAtFormatted}">Date</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- ==================== PERSONAL DRAFT ==================== -->
+			<div th:if="${!capsule.isShared and capsule.status.name() == 'DRAFT'}"
+				class="card border-warning border-opacity-50 shadow-sm mb-4">
+				<div class="card-body p-4">
+					<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+						<h2 class="h5 fw-bold mb-0"><i class="bi bi-pencil-square me-1 text-warning"></i> Draft Preview
+						</h2>
+						<div class="d-flex flex-wrap gap-2">
+							<a th:href="@{/capsules/{id}/edit(id=${capsule.publicId})}"
+								class="btn btn-outline-primary btn-sm">
+								<i class="bi bi-pencil me-1"></i> Edit Draft
+							</a>
+							<form th:action="@{/capsules/{id}/seal(id=${capsule.publicId})}" method="post"
+								onsubmit="return confirm('Once sealed, this capsule cannot be edited until unlock. Seal now?');">
+								<button type="submit" class="btn btn-primary btn-sm">
+									<i class="bi bi-lock-fill me-1"></i> Seal Capsule
+								</button>
+							</form>
+							<form th:action="@{/capsules/{id}/delete(id=${capsule.publicId})}" method="post"
+								onsubmit="return confirm('Permanently delete this draft capsule?');">
+								<button type="submit" class="btn btn-outline-danger btn-sm">
+									<i class="bi bi-trash me-1"></i> Delete
+								</button>
+							</form>
+						</div>
+					</div>
+					<div class="bg-light rounded-3 p-3 border" style="white-space: pre-wrap;"
+						th:text="${capsule.decryptedMessage}"></div>
+				</div>
+			</div>
+
+			<!-- ==================== SHARED DRAFT WORKSPACE ==================== -->
+			<div th:if="${capsule.isShared and capsule.status.name() == 'DRAFT'}" class="vstack gap-4 mb-4">
+
+				<!-- Owner Controls Bar -->
+				<div th:if="${capsule.isOwner}" class="card border-primary border-opacity-25 shadow-sm">
+					<div class="card-body p-4">
+						<div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+							<div>
+								<h2 class="h5 fw-bold mb-1">Owner Controls</h2>
+								<p class="small text-muted mb-0">
+									Seal once everyone has contributed. Any remaining pending invitations will be
+									revoked on seal.
+								</p>
+							</div>
+							<div class="d-flex flex-wrap gap-2">
+								<form th:action="@{/capsules/{id}/seal(id=${capsule.publicId})}" method="post"
+									onsubmit="return confirm('Seal this shared capsule now? Contributors will no longer be able to edit or submit messages.');">
+									<button type="submit" class="btn btn-primary btn-sm"
+										th:disabled="${capsule.totalSubmittedContributions == 0}">
+										<i class="bi bi-lock-fill me-1"></i> Seal Shared Capsule
+									</button>
+								</form>
+								<form th:action="@{/capsules/{id}/delete(id=${capsule.publicId})}" method="post"
+									onsubmit="return confirm('Permanently delete this draft shared capsule?');">
+									<button type="submit" class="btn btn-outline-danger btn-sm">
+										<i class="bi bi-trash me-1"></i> Delete Draft
+									</button>
+								</form>
+							</div>
+						</div>
+
+						<hr class="my-3">
+
+						<form th:action="@{/shared/{id}/visibility-policy(id=${capsule.publicId})}" method="post"
+							class="row g-2 align-items-end">
+							<div class="col-md-8">
+								<label for="visibilityPolicySelect" class="form-label small fw-semibold mb-1">
+									Post-Unlock Contribution Visibility Policy
+								</label>
+								<select id="visibilityPolicySelect" name="visibilityPolicy"
+									class="form-select form-select-sm">
+									<option value="ALL_MEMBERS"
+										th:selected="${capsule.visibilityPolicy.name() == 'ALL_MEMBERS'}">
+										ALL_MEMBERS — Every member reads all contributions
+									</option>
+									<option value="SELF_ONLY"
+										th:selected="${capsule.visibilityPolicy.name() == 'SELF_ONLY'}">
+										SELF_ONLY — Contributors read only their own (Owner reads all)
+									</option>
+									<option value="OWNER_DEFINED"
+										th:selected="${capsule.visibilityPolicy.name() == 'OWNER_DEFINED'}">
+										OWNER_DEFINED — Configure per-contribution viewer allow-lists below
+									</option>
+								</select>
+							</div>
+							<div class="col-md-4">
+								<button type="submit" class="btn btn-outline-primary btn-sm w-100">Update
+									Policy</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+				<!-- Your Own Contribution Editor -->
+				<div class="card border-0 shadow-sm">
+					<div class="card-body p-4">
+						<div class="d-flex justify-content-between align-items-center mb-3">
+							<h2 class="h5 fw-bold mb-0">
+								<i class="bi bi-envelope-paper-heart me-1 text-primary"></i> Your Contribution
+							</h2>
+							<span th:if="${capsule.hasOwnContribution}" class="badge text-bg-success">Submitted</span>
+							<span th:if="${!capsule.hasOwnContribution}" class="badge text-bg-warning">Not Submitted
+								Yet</span>
+						</div>
+
+						<div th:if="${!capsule.canSubmitOwnContribution}" class="alert alert-info small mb-0">
+							Your contribution has been saved and editing is currently locked by the capsule owner.
+						</div>
+
+						<form th:if="${capsule.canSubmitOwnContribution}"
+							th:action="@{/shared/{id}/contributions(id=${capsule.publicId})}"
+							th:object="${contributionForm}" method="post">
+							<div class="mb-3">
+								<label for="contribTitle" class="form-label small fw-semibold">Note Title
+									(optional)</label>
+								<input type="text" id="contribTitle" th:field="*{title}"
+									class="form-control form-control-sm"
+									placeholder="e.g., My favorite memory from this year">
+							</div>
+							<div class="mb-3">
+								<label for="contribBody" class="form-label small fw-semibold">Your Message</label>
+								<textarea id="contribBody" th:field="*{messageContent}" rows="5" class="form-control"
+									placeholder="Write your message for the future..." required></textarea>
+								<div class="form-text">
+									<i class="bi bi-shield-lock me-1"></i> Encrypted with AES-256-GCM. Other
+									contributors cannot read your message until unlock.
+								</div>
+							</div>
+							<button type="submit" class="btn btn-primary btn-sm">
+								<i class="bi bi-save me-1"></i>
+								<span
+									th:text="${capsule.hasOwnContribution} ? 'Update My Contribution' : 'Submit Contribution'">Submit</span>
+							</button>
+						</form>
+					</div>
+				</div>
+
+				<!-- Owner-Defined Custom Visibility Matrix (FR-03 Option 3) -->
+				<div th:if="${capsule.isOwner and capsule.visibilityPolicy.name() == 'OWNER_DEFINED'}"
+					class="card border-info border-opacity-50 shadow-sm">
+					<div class="card-body p-4">
+						<h2 class="h5 fw-bold mb-1">
+							<i class="bi bi-eye-fill me-1 text-info"></i> Owner-Defined Visibility Rules
+						</h2>
+						<p class="small text-muted mb-3">
+							Select which contributors may read each submitted message after unlock. (The owner and each
+							message's own author always have access.)
+						</p>
+
+						<div th:if="${#lists.isEmpty(capsule.draftContributions)}" class="small text-muted">
+							No contributions submitted yet. Rules will appear here as members submit messages.
+						</div>
+
+						<div class="vstack gap-3" th:if="${!#lists.isEmpty(capsule.draftContributions)}">
+							<div class="border rounded-3 p-3 bg-light" th:each="dc : ${capsule.draftContributions}">
+								<div class="d-flex justify-content-between align-items-center mb-2">
+									<div>
+										<strong th:text="${dc.contributorName}">Contributor</strong>
+										<span th:if="${dc.title}" class="text-muted small"
+											th:text="' — ' + ${dc.title}"></span>
+									</div>
+									<span class="small text-muted" th:text="${dc.updatedAtFormatted}">Updated</span>
+								</div>
+								<form
+									th:action="@{/shared/{id}/contributions/{cid}/visibility(id=${capsule.publicId}, cid=${dc.contributionPublicId})}"
+									method="post"
+									class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+									<div class="d-flex flex-wrap gap-3">
+										<div class="form-check form-check-inline mb-0" th:each="m : ${capsule.members}"
+											th:if="${m.role.name() != 'OWNER' and m.userId != dc.contributorUserId}">
+											<input class="form-check-input" type="checkbox" name="allowedUserIds"
+												th:id="'vis_' + ${dc.contributionPublicId} + '_' + ${m.userId}"
+												th:value="${m.userId}"
+												th:checked="${dc.allowedUserIds.contains(m.userId)}">
+											<label class="form-check-label small"
+												th:for="'vis_' + ${dc.contributionPublicId} + '_' + ${m.userId}"
+												th:text="${m.fullName}">Member</label>
+										</div>
+									</div>
+									<button type="submit" class="btn btn-outline-primary btn-sm">Save Viewers</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Members & Invitations Row -->
+				<div class="row g-4">
+					<div class="col-lg-7">
+						<div class="card border-0 shadow-sm h-100">
+							<div class="card-body p-4">
+								<h2 class="h6 fw-bold mb-3"><i class="bi bi-people me-1"></i> Capsule Members</h2>
+								<div class="table-responsive">
+									<table class="table table-sm align-middle mb-0">
+										<thead class="table-light">
+											<tr>
+												<th>Member</th>
+												<th>Status</th>
+												<th th:if="${capsule.isOwner}" class="text-end">Owner Actions</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="m : ${capsule.members}">
+												<td>
+													<div class="fw-semibold small" th:text="${m.fullName}">Name</div>
+													<div class="text-muted" style="font-size: 0.75rem;"
+														th:text="${m.role}">ROLE</div>
+												</td>
+												<td>
+													<span th:if="${m.hasSubmitted}"
+														class="badge text-bg-success">Submitted</span>
+													<span th:if="${!m.hasSubmitted}"
+														class="badge text-bg-light border text-dark">Pending</span>
+												</td>
+												<td th:if="${capsule.isOwner}" class="text-end">
+													<div th:if="${m.role.name() != 'OWNER'}"
+														class="d-inline-flex gap-1">
+														<form
+															th:action="@{/shared/{id}/members/{mid}/toggle-edit(id=${capsule.publicId}, mid=${m.memberId})}"
+															method="post">
+															<button type="submit"
+																class="btn btn-outline-secondary btn-sm py-0 px-2"
+																th:text="${m.canEditBeforeSeal} ? 'Lock Edit' : 'Allow Edit'"></button>
+														</form>
+														<form
+															th:action="@{/shared/{id}/members/{mid}/remove(id=${capsule.publicId}, mid=${m.memberId})}"
+															method="post"
+															onsubmit="return confirm('Remove this contributor and withdraw their contribution?');">
+															<button type="submit"
+																class="btn btn-outline-danger btn-sm py-0 px-2">Remove</button>
+														</form>
+													</div>
+													<span th:if="${m.role.name() == 'OWNER'}"
+														class="small text-muted">Owner</span>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Owner Invite Panel -->
+					<div class="col-lg-5" th:if="${capsule.isOwner}">
+						<div class="card border-0 shadow-sm h-100">
+							<div class="card-body p-4">
+								<h2 class="h6 fw-bold mb-3"><i class="bi bi-person-plus me-1"></i> Invite Contributors
+								</h2>
+								<form th:action="@{/shared/{id}/invite(id=${capsule.publicId})}"
+									th:object="${inviteForm}" method="post" class="input-group input-group-sm mb-3">
+									<input type="email" th:field="*{inviteeEmail}" class="form-control"
+										placeholder="friend@example.com" required>
+									<button type="submit" class="btn btn-primary">Send Invite</button>
+								</form>
+
+								<div th:if="${#lists.isEmpty(capsule.invitations)}" class="small text-muted">
+									No invitations sent yet.
+								</div>
+
+								<ul class="list-group list-group-flush small"
+									th:if="${!#lists.isEmpty(capsule.invitations)}">
+									<li class="list-group-item px-0 d-flex justify-content-between align-items-center"
+										th:each="inv : ${capsule.invitations}">
+										<div>
+											<div class="fw-semibold" th:text="${inv.inviteeEmail}">email</div>
+											<span class="badge text-bg-light border"
+												th:text="${inv.status}">PENDING</span>
+										</div>
+										<form th:if="${inv.status.name() == 'PENDING'}"
+											th:action="@{/shared/{id}/invitations/{iid}/revoke(id=${capsule.publicId}, iid=${inv.invitationId})}"
+											method="post">
+											<button type="submit"
+												class="btn btn-outline-danger btn-sm py-0 px-2">Revoke</button>
+										</form>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- ==================== SEALED (LIVE COUNTDOWN) ==================== -->
+			<div th:if="${capsule.status.name() == 'SEALED'}"
+				class="card border-primary border-opacity-25 shadow-sm mb-4">
+				<div class="card-body p-4 p-md-5 text-center bg-light rounded-3">
+					<i class="bi bi-lock-fill fs-1 text-primary"></i>
+					<h2 class="h4 fw-bold mt-3 mb-1">This Capsule is Sealed</h2>
+					<p class="text-muted small mb-4">
+						All messages are encrypted and locked until <strong
+							th:text="${capsule.unlockAtFormatted}">date</strong>.
+					</p>
+
+					<div class="mb-4" th:attr="data-unlock-utc=${capsule.unlockAtUtcIso}" data-auto-reload="true">
+						Loading countdown...
+					</div>
+
+					<form th:if="${capsule.canCancel}" th:action="@{/capsules/{id}/cancel(id=${capsule.publicId})}"
+						method="post"
+						onsubmit="return confirm('Cancel this sealed capsule? Cancelled capsules will never unlock.');">
+						<button type="submit" class="btn btn-outline-danger btn-sm">
+							<i class="bi bi-x-octagon me-1"></i> Cancel Sealed Capsule
+						</button>
+					</form>
+				</div>
+			</div>
+
+			<!-- ==================== READY TO OPEN ==================== -->
+			<div th:if="${capsule.canOpenNow}" class="card border-success shadow-sm mb-4">
+				<div class="card-body p-5 text-center">
+					<i class="bi bi-envelope-open-heart-fill fs-1 text-success"></i>
+					<h2 class="h4 fw-bold mt-3 mb-2">Your Time Capsule is Ready!</h2>
+					<p class="text-muted mb-4">
+						The scheduled unlock moment has arrived. Open it now to reveal the preserved memories.
+					</p>
+					<form th:action="@{/capsules/{id}/open(id=${capsule.publicId})}" method="post">
+						<button type="submit" class="btn btn-success btn-lg px-4">
+							<i class="bi bi-unlock-fill me-2"></i> Open Capsule
+						</button>
+					</form>
+				</div>
+			</div>
+
+			<!-- ==================== PERSONAL REVEAL ==================== -->
+			<div th:if="${!capsule.isShared and capsule.showMessage and capsule.status.name() != 'DRAFT'}"
+				class="card border-0 shadow-sm mb-4">
+				<div class="card-body p-4 p-md-5">
+					<div class="d-flex justify-content-between align-items-center mb-3">
+						<h2 class="h5 fw-bold text-primary mb-0">
+							<i class="bi bi-envelope-heart me-1"></i> Preserved Message
+						</h2>
+						<span class="badge text-bg-success">Unlocked &amp; Opened</span>
+					</div>
+					<div class="p-4 bg-light rounded-3 border fs-6" style="white-space: pre-wrap; line-height: 1.7;"
+						th:text="${capsule.decryptedMessage}"></div>
+				</div>
+			</div>
+
+			<!-- ==================== SHARED REVEAL (VISIBILITY-ENFORCED) ==================== -->
+			<div th:if="${capsule.isShared and capsule.openedByCurrentUser and (capsule.status.name() == 'READY' or capsule.status.name() == 'OPENED')}"
+				class="vstack gap-3 mb-4">
+				<div class="d-flex justify-content-between align-items-center">
+					<h2 class="h5 fw-bold text-primary mb-0">
+						<i class="bi bi-collection-fill me-1"></i>
+						Revealed Contributions (<span th:text="${#lists.size(capsule.visibleContributions)}">0</span>)
+					</h2>
+					<span class="badge text-bg-light border"
+						th:text="'Policy: ' + ${capsule.visibilityPolicy}">Policy</span>
+				</div>
+
+				<div th:if="${#lists.isEmpty(capsule.visibleContributions)}" class="card border-0 shadow-sm">
+					<div class="card-body p-4 text-center text-muted small">
+						No contributions are visible to your account under this capsule's visibility policy.
+					</div>
+				</div>
+
+				<div class="card border-0 shadow-sm" th:each="contrib : ${capsule.visibleContributions}">
+					<div class="card-body p-4">
+						<div class="d-flex justify-content-between align-items-start mb-2">
+							<div>
+								<h3 class="h6 fw-bold mb-0"
+									th:text="${contrib.title != null ? contrib.title : 'Shared Memory'}">Title</h3>
+								<span class="small text-muted">
+									By <strong th:text="${contrib.contributorName}">Author</strong>
+									<span th:if="${contrib.ownContribution}"
+										class="badge text-bg-primary ms-1">You</span>
+								</span>
+							</div>
+							<span class="small text-muted" th:text="${contrib.submittedAtFormatted}">Date</span>
+						</div>
+						<div class="p-3 bg-light rounded-3 border mt-3"
+							style="white-space: pre-wrap; line-height: 1.65;" th:text="${contrib.decryptedMessage}">
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- ==================== CANCELLED ==================== -->
+			<div th:if="${capsule.status.name() == 'CANCELLED'}"
+				class="card border-danger border-opacity-25 shadow-sm mb-4">
+				<div class="card-body p-4 text-center">
+					<i class="bi bi-slash-circle fs-1 text-danger"></i>
+					<h2 class="h5 fw-bold mt-3">Capsule Cancelled</h2>
+					<p class="text-muted small mb-0">
+						This capsule was cancelled before its unlock time and can no longer be opened.
+					</p>
+				</div>
+			</div>
+
+			<!-- ==================== OPENING HISTORY ==================== -->
+			<div th:if="${!#lists.isEmpty(capsule.openHistory)}" class="card border-0 shadow-sm">
+				<div class="card-body p-4">
+					<h3 class="h6 fw-bold mb-3"><i class="bi bi-clock-history me-1"></i> Opening History</h3>
+					<div class="table-responsive">
+						<table class="table table-sm align-middle mb-0">
+							<thead class="table-light">
+								<tr>
+									<th>Opened By</th>
+									<th>First Opened</th>
+									<th>Last Opened</th>
+									<th class="text-end">Opens</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="h : ${capsule.openHistory}">
+									<td th:text="${h.viewerName}">User</td>
+									<td class="small text-muted" th:text="${h.firstOpenedFormatted}">Date</td>
+									<td class="small text-muted" th:text="${h.lastOpenedFormatted}">Date</td>
+									<td class="text-end fw-semibold" th:text="${h.openCount}">1</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Dashboard', ~{::section})}">
+
+<body>
+	<section>
+		<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+			<div th:if="${summary.pendingInvitationsCount > 0}"
+				class="alert alert-warning d-flex justify-content-between align-items-center shadow-sm mb-4">
+				<div>
+					<i class="bi bi-envelope-exclamation-fill me-2"></i>
+					You have <strong th:text="${summary.pendingInvitationsCount}">1</strong> pending shared capsule
+					invitation(s).
+				</div>
+				<a th:href="@{/invitations}" class="btn btn-warning btn-sm fw-semibold">Review Invitations</a>
+			</div>
+			<div>
+				<h1 class="h3 fw-bold mb-1">
+					Hello, <span th:text="${summary.displayName}">TimeFold User</span>
+				</h1>
+				<p class="text-muted small mb-0">
+					Timezone: <span class="badge text-bg-light border" th:text="${summary.timezone}">UTC</span>
+				</p>
+			</div>
+			<div class="d-flex gap-2">
+				<a th:href="@{/capsules}" class="btn btn-outline-secondary btn-sm">
+					<i class="bi bi-collection me-1"></i> All Capsules
+				</a>
+				<a th:href="@{/shared/new}" class="btn btn-outline-primary btn-sm">
+					<i class="bi bi-people-fill me-1"></i> New Shared
+				</a>
+				<a th:href="@{/capsules/new}" class="btn btn-primary btn-sm">
+					<i class="bi bi-plus-lg me-1"></i> New Capsule
+				</a>
+			</div>
+		</div>
+
+		<div class="row g-3 mb-4">
+			<div class="col-6 col-lg-3">
+				<a th:href="@{/capsules(status='READY')}" class="text-decoration-none">
+					<div class="card border-0 shadow-sm h-100 tf-card-hover">
+						<div class="card-body">
+							<div class="text-muted small">Ready to Open</div>
+							<div class="display-6 fw-bold text-success" th:text="${summary.readyCount}">0</div>
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-6 col-lg-3">
+				<a th:href="@{/capsules(status='SEALED')}" class="text-decoration-none">
+					<div class="card border-0 shadow-sm h-100 tf-card-hover">
+						<div class="card-body">
+							<div class="text-muted small">Sealed &amp; Waiting</div>
+							<div class="display-6 fw-bold text-primary" th:text="${summary.sealedCount}">0</div>
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-6 col-lg-3">
+				<a th:href="@{/capsules(status='OPENED')}" class="text-decoration-none">
+					<div class="card border-0 shadow-sm h-100 tf-card-hover">
+						<div class="card-body">
+							<div class="text-muted small">Opened Memories</div>
+							<div class="display-6 fw-bold text-secondary" th:text="${summary.openedCount}">0</div>
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-6 col-lg-3">
+				<a th:href="@{/capsules}" class="text-decoration-none">
+					<div class="card border-0 shadow-sm h-100 tf-card-hover">
+						<div class="card-body">
+							<div class="text-muted small">Total Capsules</div>
+							<div class="display-6 fw-bold text-dark" th:text="${summary.personalCount}">0</div>
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+
+		<!-- Ready to Open Highlight -->
+		<div th:if="${!#lists.isEmpty(readyCapsules)}" class="mb-4">
+			<h2 class="h5 fw-bold text-success mb-3">
+				<i class="bi bi-unlock-fill me-1"></i> Ready to Open Now
+			</h2>
+			<div class="row g-3">
+				<div class="col-md-6" th:each="c : ${readyCapsules}">
+					<div class="card border-success border-opacity-50 shadow-sm tf-card-hover">
+						<div class="card-body d-flex justify-content-between align-items-center gap-3">
+							<div>
+								<h3 class="h6 fw-bold mb-1" th:text="${c.title}">Title</h3>
+								<p class="small text-muted mb-0">
+									Unlocked: <span th:text="${c.unlockAtFormatted}">Date</span>
+								</p>
+							</div>
+							<a th:href="@{/capsules/{id}(id=${c.publicId})}" class="btn btn-success btn-sm text-nowrap">
+								Open Capsule
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Recent Capsules -->
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h2 class="h5 fw-bold mb-0">Recent Capsules</h2>
+			<a th:href="@{/capsules}" class="small text-decoration-none">View all &rarr;</a>
+		</div>
+
+		<div th:if="${#lists.isEmpty(recentCapsules)}" class="card border-0 shadow-sm">
+			<div class="card-body p-5 text-center">
+				<i class="bi bi-envelope-paper-heart fs-1 text-primary opacity-75"></i>
+				<h3 class="h5 fw-semibold mt-3">Write your first letter to the future</h3>
+				<p class="text-muted small mb-4">
+					Save a draft, choose an exact unlock date in your timezone, and seal it until the moment arrives.
+				</p>
+				<a th:href="@{/capsules/new}" class="btn btn-primary">
+					<i class="bi bi-plus-lg me-1"></i> Create Personal Capsule
+				</a>
+			</div>
+		</div>
+
+		<div th:if="${!#lists.isEmpty(recentCapsules)}" class="row g-3">
+			<div class="col-md-6 col-lg-4" th:each="c : ${recentCapsules}">
+				<div class="card border-0 shadow-sm h-100 tf-card-hover">
+					<div class="card-body d-flex flex-column">
+						<div class="d-flex justify-content-between align-items-start mb-2">
+							<span class="badge" th:text="${c.effectiveStatus}"
+								th:classappend="${c.effectiveStatus.name() == 'READY'} ? 'text-bg-success' :
+                                              (${c.effectiveStatus.name() == 'SEALED'} ? 'text-bg-primary' :
+                                              (${c.effectiveStatus.name() == 'DRAFT'} ? 'text-bg-warning' :
+                                              (${c.effectiveStatus.name() == 'OPENED'} ? 'text-bg-secondary' : 'text-bg-danger')))">
+								STATUS
+							</span>
+							<span class="badge text-bg-light border small" th:text="${c.theme}">CLASSIC</span>
+						</div>
+						<h3 class="h6 fw-bold mb-1" th:text="${c.title}">Capsule Title</h3>
+						<p class="small text-muted flex-grow-1 mb-3"
+							th:text="${c.description != null ? c.description : 'Personal time capsule'}">Description</p>
+
+						<div class="small text-muted mb-3">
+							<i class="bi bi-clock me-1"></i>
+							<span th:text="${c.unlockAtFormatted}">Unlock Date</span>
+							<div th:if="${c.effectiveStatus.name() == 'SEALED'}" class="fw-semibold text-primary mt-1"
+								th:attr="data-unlock-utc=${c.unlockAtUtcIso}" data-compact="true">Calculating...</div>
+						</div>
+
+						<a th:href="@{/capsules/{id}(id=${c.publicId})}" class="btn btn-outline-primary btn-sm w-100">
+							View Capsule
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+
+</html>

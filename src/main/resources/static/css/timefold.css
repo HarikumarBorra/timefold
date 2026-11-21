@@ -1,0 +1,32 @@
+:root {
+	--tf-primary: #4f46e5;
+	--tf-primary-dark: #3730a3;
+	--tf-accent: #f59e0b;
+	--tf-bg: #f8fafc;
+}
+
+body {
+	background-color: var(--tf-bg);
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+main {
+	flex: 1 0 auto;
+}
+
+.tf-hero {
+	background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 55%, #4f46e5 100%);
+	color: #ffffff;
+	border-radius: 1rem;
+}
+
+.tf-card-hover {
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tf-card-hover:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 0.5rem 1.25rem rgba(15, 23, 42, 0.08);
+}

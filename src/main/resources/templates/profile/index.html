@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: page('Profile & Preferences', ~{::section})}">
+
+<body>
+	<section>
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<div>
+				<h1 class="h3 fw-bold mb-1">Profile &amp; Preferences</h1>
+				<p class="text-muted small mb-0" th:text="${userEmail}">user@example.com</p>
+			</div>
+			<a th:href="@{/dashboard}" class="btn btn-outline-secondary btn-sm">
+				<i class="bi bi-arrow-left me-1"></i> Dashboard
+			</a>
+		</div>
+
+		<div class="row g-4">
+			<div class="col-lg-7">
+				<div class="card border-0 shadow-sm">
+					<div class="card-body p-4">
+						<h2 class="h5 fw-semibold mb-3">Personal Information &amp; Notifications</h2>
+						<form th:action="@{/profile}" th:object="${profileUpdateRequest}" method="post" novalidate>
+							<div class="row g-3">
+								<div class="col-md-6">
+									<label for="fullName" class="form-label">Full Name</label>
+									<input type="text" id="fullName" th:field="*{fullName}" class="form-control"
+										th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'" required>
+									<div class="invalid-feedback" th:errors="*{fullName}"></div>
+								</div>
+
+								<div class="col-md-6">
+									<label for="displayName" class="form-label">Display Name</label>
+									<input type="text" id="displayName" th:field="*{displayName}" class="form-control"
+										th:classappend="${#fields.hasErrors('displayName')} ? 'is-invalid'">
+									<div class="invalid-feedback" th:errors="*{displayName}"></div>
+								</div>
+
+								<div class="col-md-6">
+									<label for="phoneE164" class="form-label">Phone Number (E.164)</label>
+									<input type="text" id="phoneE164" th:field="*{phoneE164}" class="form-control"
+										th:classappend="${#fields.hasErrors('phoneE164')} ? 'is-invalid'"
+										placeholder="+919876543210">
+									<div class="invalid-feedback" th:errors="*{phoneE164}"></div>
+									<div class="form-text">Optional. Verified phone + explicit consent enable WhatsApp
+										alerts in Phase 7.</div>
+								</div>
+
+								<div class="col-md-6">
+									<label for="defaultTimezone" class="form-label">Default Timezone</label>
+									<select id="defaultTimezone" th:field="*{defaultTimezone}" class="form-select">
+										<option th:each="tz : ${timezones}" th:value="${tz}" th:text="${tz}"></option>
+									</select>
+								</div>
+
+								<div class="col-12">
+									<label for="bio" class="form-label">Bio</label>
+									<textarea id="bio" th:field="*{bio}" rows="3" class="form-control"
+										th:classappend="${#fields.hasErrors('bio')} ? 'is-invalid'"
+										placeholder="A short note about you..."></textarea>
+									<div class="invalid-feedback" th:errors="*{bio}"></div>
+								</div>
+							</div>
+
+							<hr class="my-4">
+							<h3 class="h6 fw-semibold mb-3">Notification Preferences</h3>
+
+							<div class="form-check form-switch mb-2">
+								<input class="form-check-input" type="checkbox" id="emailEnabled"
+									th:field="*{emailEnabled}">
+								<label class="form-check-label" for="emailEnabled">Email notifications</label>
+							</div>
+							<div class="form-check form-switch mb-2">
+								<input class="form-check-input" type="checkbox" id="upcomingUnlockReminders"
+									th:field="*{upcomingUnlockReminders}">
+								<label class="form-check-label" for="upcomingUnlockReminders">Upcoming capsule unlock
+									reminders</label>
+							</div>
+							<div class="form-check form-switch mb-4">
+								<input class="form-check-input" type="checkbox" id="occasionReminders"
+									th:field="*{occasionReminders}">
+								<label class="form-check-label" for="occasionReminders">Birthday &amp; anniversary
+									reminders</label>
+							</div>
+
+							<button type="submit" class="btn btn-primary">Save Changes</button>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-5">
+				<div class="card border-0 shadow-sm">
+					<div class="card-body p-4">
+						<h2 class="h5 fw-semibold mb-3">Change Password</h2>
+						<form th:action="@{/profile/password}" th:object="${changePasswordRequest}" method="post"
+							novalidate>
+							<div class="mb-3">
+								<label for="currentPassword" class="form-label">Current Password</label>
+								<input type="password" id="currentPassword" th:field="*{currentPassword}"
+									class="form-control"
+									th:classappend="${#fields.hasErrors('currentPassword')} ? 'is-invalid'" required>
+								<div class="invalid-feedback" th:errors="*{currentPassword}"></div>
+							</div>
+
+							<div class="mb-3">
+								<label for="newPassword" class="form-label">New Password</label>
+								<input type="password" id="newPassword" th:field="*{newPassword}" class="form-control"
+									th:classappend="${#fields.hasErrors('newPassword')} ? 'is-invalid'" required>
+								<div class="invalid-feedback" th:errors="*{newPassword}"></div>
+							</div>
+
+							<div class="mb-4">
+								<label for="confirmPassword" class="form-label">Confirm New Password</label>
+								<input type="password" id="confirmPassword" th:field="*{confirmPassword}"
+									class="form-control"
+									th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid'" required>
+								<div class="invalid-feedback" th:errors="*{confirmPassword}"></div>
+							</div>
+
+							<button type="submit" class="btn btn-outline-primary w-100">Update Password</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+
+</html>
