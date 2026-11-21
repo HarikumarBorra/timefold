@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("dev")
+@Profile("!prod")
 public class ConsoleInvitationEmailSender implements InvitationEmailSender {
 
     private static final Logger log = LoggerFactory.getLogger(ConsoleInvitationEmailSender.class);

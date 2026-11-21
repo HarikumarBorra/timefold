@@ -7,7 +7,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("!dev")
+@Profile("prod")
 public class SmtpInvitationEmailSender implements InvitationEmailSender {
 
     private final JavaMailSender mailSender;

@@ -23,7 +23,9 @@ public interface CapsuleContributionVisibilityRepository
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM CapsuleContributionVisibility v "
             + "WHERE v.id.allowedUserId = :userId "
-            + "AND v.contribution.capsule.id = :capsuleId")
+            + "AND v.id.contributionId IN ("
+            + "    SELECT cc.id FROM CapsuleContribution cc WHERE cc.capsule.id = :capsuleId"
+            + ")")
     void deleteByCapsuleIdAndAllowedUserId(@Param("capsuleId") Long capsuleId, @Param("userId") Long userId);
-    
+
 }
